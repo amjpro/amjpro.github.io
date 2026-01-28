@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset = "utf-8">
+        <title>feliz cumpleaños</title>
+        <link rel="preconnect" href="https://fonts.gstatic.com">
+        <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300&display=swap" rel="stylesheet">
+        <script src="https://kit.fontawesome.com/b327ed6ad2.js" crossorigin="anonymous"></script>
+        <style>
+            html, body {
+                margin: 0;
+                padding: 0;
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+                font-family: "Raleway", sans-serif;
+                background: #0b1026;
+            }
+
+            #confetti {
+                position: fixed;
+                inset: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 0;
+            }
+
+            .birthday {
+                position: relative;
+                z-index: 1;
+                min-height: 100vh;
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                color: #ffffff;
+                text-align: center;
+                padding: 2rem;
+                background: radial-gradient(circle at top, rgba(255, 255, 255, 0.18), transparent 60%);
+                backdrop-filter: blur(2px);
+            }
+
+            .birthday h1 {
+                font-size: clamp(2.8rem, 6vw, 5rem);
+                margin: 0 0 0.5rem;
+            }
+
+            .birthday p {
+                font-size: clamp(1rem, 2.2vw, 1.5rem);
+                margin: 0;
+                max-width: 40rem;
+            }
+
+            @media (max-width: 600px) {
+                .birthday h1 {
+                    font-size: clamp(3rem, 10vw, 4.2rem);
+                }
+
+                .birthday p {
+                    font-size: clamp(4.2rem, 16.5vw, 5.7rem);
+                    max-width: 90vw;
+                }
+            }
+
+            .message {
+                transition: opacity 0.6s ease;
+            }
+
+            .message.is-fading {
+                opacity: 0;
+            }
+        </style>
+    </head>
+    <body>
+        <canvas id="confetti"></canvas>
+        <main class="birthday">
+            <h1 id="birthday-title" class="message"></h1>
+            <p id="birthday-subtitle" class="message"></p>
+        </main>
+
+        <script>
+            const canvas = document.getElementById("confetti");
+            const ctx = canvas.getContext("2d");
+            const title = document.getElementById("birthday-title");
+            const subtitle = document.getElementById("birthday-subtitle");
+
+            const confettiCount = 180;
+            const confetti = [];
+            const colors = [
+                "#ff595e",
+                "#ffca3a",
+                "#8ac926",
+                "#1982c4",
+                "#6a4c93",
+                "#ffd6ff",
+                "#caffbf"
+            ];
+
+            const resize = () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            };
+
+            const createConfetti = () => {
+                confetti.length = 0;
+                for (let i = 0; i < confettiCount; i += 1) {
+                    confetti.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        w: 6 + Math.random() * 8,
+                        h: 6 + Math.random() * 12,
+                        vx: -1 + Math.random() * 2,
+                        vy: 2 + Math.random() * 4,
+                        r: Math.random() * Math.PI,
+                        vr: -0.1 + Math.random() * 0.2,
+                        color: colors[Math.floor(Math.random() * colors.length)]
+                    });
+                }
+            };
+
+            const update = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                confetti.forEach((piece) => {
+                    piece.x += piece.vx;
+                    piece.y += piece.vy;
+                    piece.r += piece.vr;
+
+                    if (piece.y > canvas.height + 20) {
+                        piece.y = -20;
+                        piece.x = Math.random() * canvas.width;
+                    }
+
+                    if (piece.x > canvas.width + 20) {
+                        piece.x = -20;
+                    }
+
+                    if (piece.x < -20) {
+                        piece.x = canvas.width + 20;
+                    }
+
+                    ctx.save();
+                    ctx.translate(piece.x, piece.y);
+                    ctx.rotate(piece.r);
+                    ctx.fillStyle = piece.color;
+                    ctx.fillRect(-piece.w / 2, -piece.h / 2, piece.w, piece.h);
+                    ctx.restore();
+                });
+
+                requestAnimationFrame(update);
+            };
+
+            window.addEventListener("resize", () => {
+                resize();
+                createConfetti();
+            });
+
+            const steps = [
+                {
+                    title: "Hopefully I finish this in time...",
+                    subtitle: ""
+                },
+                {
+                    title: "How old are you again?",
+                    subtitle: ""
+                },
+                {
+                    title: "Oh, it doesn't matter!",
+                    subtitle: ""
+                },
+                {
+                    title: "Happy Birthday!",
+                    subtitle: "Here’s to many more amazing years to come!"
+                }
+            ];
+
+            const setMessage = (step, delay) => {
+                setTimeout(() => {
+                    title.classList.add("is-fading");
+                    subtitle.classList.add("is-fading");
+
+                    setTimeout(() => {
+                        title.textContent = step.title;
+                        subtitle.textContent = step.subtitle;
+                        subtitle.style.display = step.subtitle ? "block" : "none";
+                        title.classList.remove("is-fading");
+                        subtitle.classList.remove("is-fading");
+                    }, 600);
+                }, delay);
+            };
+
+            let delay = 5000;
+            steps.forEach((step) => {
+                setMessage(step, delay);
+                delay += 5000;
+            });
+
+            resize();
+            createConfetti();
+            update();
+        </script>
+    </body>
+</html>
