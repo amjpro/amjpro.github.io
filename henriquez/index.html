@@ -29,7 +29,6 @@
                 position: relative;
                 z-index: 1;
                 min-height: 100vh;
-                width: 100%;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
@@ -59,12 +58,13 @@
 
                 .birthday p {
                     font-size: clamp(4.2rem, 16.5vw, 5.7rem);
-                    max-width: 90vw;
                 }
             }
 
             .message {
                 transition: opacity 0.6s ease;
+                backface-visibility: hidden;
+                transform: translateZ(0);
             }
 
             .message.is-fading {
@@ -180,13 +180,29 @@
                     title.classList.add("is-fading");
                     subtitle.classList.add("is-fading");
 
-                    setTimeout(() => {
+                    const swap = () => {
                         title.textContent = step.title;
                         subtitle.textContent = step.subtitle;
                         subtitle.style.display = step.subtitle ? "block" : "none";
+
+                        void title.offsetWidth;
                         title.classList.remove("is-fading");
                         subtitle.classList.remove("is-fading");
-                    }, 600);
+                    };
+
+                    const handleFade = () => {
+                        title.removeEventListener("transitionend", handleFade);
+                        swap();
+                    };
+
+                    title.addEventListener("transitionend", handleFade, { once: true });
+
+                    setTimeout(() => {
+                        if (title.classList.contains("is-fading")) {
+                            title.removeEventListener("transitionend", handleFade);
+                            swap();
+                        }
+                    }, 700);
                 }, delay);
             };
 
